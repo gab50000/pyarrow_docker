@@ -22,11 +22,9 @@ RUN git clone https://github.com/apache/arrow.git
 
 ENV VIRTUAL_ENV=/root/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV ARROW_HOME=$(pwd)/dist
-ENV LD_LIBRARY_PATH=$(pwd)/dist/lib:$LD_LIBRARY_PATH
+ENV ARROW_HOME=/dist
+ENV LD_LIBRARY_PATH=/dist/lib:$LD_LIBRARY_PATH
 
-RUN python3 -m virtualenv -p python3 ${VIRTUAL_ENV} && \
-        pip install cmake
 
 RUN mkdir arrow/cpp/build && \
     ( \
@@ -46,3 +44,11 @@ RUN mkdir arrow/cpp/build && \
             make -j4 && \
             make install \
     )
+
+RUN python3 -m virtualenv -p python3 ${VIRTUAL_ENV} && \
+        pip3 install \
+            cmake \
+            numpy && \
+        cd /arrow/python && \
+        pip3 install -r requirements-build.txt && \
+        python3 setup.py install
